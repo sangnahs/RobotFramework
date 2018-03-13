@@ -1,0 +1,23 @@
+*** Settings ***
+Library           SSHLibrary
+
+*** Keywords ***
+Login CLI
+    [Arguments]    ${host}    ${username}    ${passwd}
+    ${conn}=    SSHLibrary.Open Connection    ${host}    timeout=120s    prompt=>
+    SSHLibrary.Login    ${username}    ${passwd}
+    SSHLibrary.Set Client Configuration    prompt=>
+    SSHLibrary.Write    xs apps
+    ${output}=    SSHLibrary.Read Until Regexp    .*xs1adm>
+    Log To Console    ${output}
+    SSHLibrary.Close Connection
+
+Logout CLI
+    SSHLibrary.Close Connection
+
+Deploy App
+    [Arguments]    ${mtarpath}
+    ${cmd}=    catenate    xs deploy    ${mtarpath}
+    SSHLibrary.Write    ${cmd}
+    ${output}=    SSHLibrary.Read Until Regexp    .*xs1adm>
+    Should Contain    ${output}    Process finished

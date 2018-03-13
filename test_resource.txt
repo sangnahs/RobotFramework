@@ -1,0 +1,62 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Collections
+
+*** Keywords ***
+login
+    [Arguments]    ${url}    ${user}    ${password}
+    ${dc}    Evaluate    sys.modules['selenium.webdriver'].DesiredCapabilities.CHROME    sys, selenium.webdriver
+    Set To Dictionary    ${dc}    ignoreProtectedModeSettings    ${True}
+    Set To Dictionary    ${dc}    acceptSslCerts    ${True}
+    Log Dictionary    ${dc}
+    Selenium2Library.Open Browser    ${url}    desired_capabilities=${dc}    browser=chrome
+    Selenium2Library.Set Selenium Implicit Wait    30s
+    Selenium2Library.Maximize Browser Window
+    Selenium2Library.Wait Until Page Contains Element    //input[@id="xs_username-inner"]
+    Selenium2Library.Input Text    //input[@id="xs_username-inner"]    ${user}
+    Selenium2Library.Input Text    //input[@id="xs_password-inner"]    ${password}
+    Selenium2Library.Click Element    //button[@id="logon_button"]
+    Sleep    30s
+
+Go_to_config
+    Selenium2Library.Click Element    //a[contains(text(),"Configuration")]
+    sleep    10s
+
+create new config
+    [Arguments]    ${config_name}
+    Selenium2Library.Click Element    //span[contains(text(),"New Configuration")]/ancestor::button \
+    Selenium2Library.Input Text    //input[@id="ddo-configuration-newForm-DESCRIPTION-inner"]    ${config_name}
+    sleep    30s
+    Selenium2Library.Click Element    //span[contains(text(),"Create new Configuration")]
+
+get_config_id
+    ${Config_id}    Get Element ATtribute    xpath=(//div[@id="ddo.configuration.headerTable-rowsel0"]/parent::div/following-sibling::div[1]//input[contains(@id,"row0") \ and contains(@title,"Configuration ID")])@value
+    Return From Keyword    ${Config_id}
+
+make_editable_config
+    Sleep    20s
+    Selenium2Library.Click Button    //button[@id="ddo.configuration.makeEditableButton"]
+
+select_the_config
+    [Arguments]    ${config_id}
+    sleep    2s
+    Selenium2Library.Click Element    //label[contains(text(),"Configuration ID")]
+    Wait Until Element Is Visible    //div//following-sibling::table[1]//input
+    sleep    2s
+    Selenium2Library.Input Text    //div//following-sibling::table[1]//input    ${config_id}
+    Sleep    3s
+    Selenium2Library.Press Key    //div//following-sibling::table[1]//input    \\13
+    sleep    2s
+    Wait Until Element Is Visible    //div[@id="ddo.configuration.headerTable-rowsel0"]
+    sleep    2s
+
+Go_to_table_placement
+    Selenium2Library.Click Element    //li[contains(text(),"Table Placement")]
+    sleep    3s
+
+Create_entry_in_table_placement
+    Sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Create Entry")]
+
+select_first_row_in_config
+    Selenium2Library.Click Element    //div[@id="ddo.configuration.headerTable-rowsel0"]

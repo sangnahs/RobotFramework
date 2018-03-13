@@ -1,0 +1,8 @@
+*** Settings ***
+Library           LoginTest
+
+*** Test Cases ***
+TestCase1
+    openXSIDE    https://ld8499.wdf.sap.corp:53075/
+    loginXSIDE    test    Manager0
+    closeXSIDE

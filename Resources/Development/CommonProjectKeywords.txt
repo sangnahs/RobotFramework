@@ -1,0 +1,86 @@
+*** Settings ***
+Resource          ../SeleniumLibraryAdapter.txt
+Resource          ../CollectionAdapterResource.txt
+
+*** Keywords ***
+Create MTA Project
+    [Arguments]    ${projectName}    ${space}
+    Selenium2Library.Open Context Menu    //span[contains(text(),"Workspace")]
+    Selenium2Library.Click Element    //div[contains(text(),"New")]
+    Selenium2Library.Click Element    //div[contains(text(),"Project from Template")]
+    sleep    5s
+    Selenium2Library.Click Element    //div/button[contains(text(),"Next")]
+    Selenium2Library.Input Text    id=projectWizard--projectNameStep--nameField    ${projectName}
+    Selenium2Library.Click Element    //button[contains(text(),"Next")]
+    sleep    5s
+    Selenium2Library.Input Text    //label[contains(text(),"Space*")]/ancestor::div/following-sibling::div//input    ${space}
+    Selenium2Library.Press Key    //label[contains(text(),"Space*")]/ancestor::div/following-sibling::div//input    \\13
+    Selenium2Library.Click Element    //button[contains(text(),"Finish")]
+    Select Window    null
+    Selenium2Library.Wait Until Element Is Visible    //span[contains(text(),"${projectName}")]    timeout=60s
+    sleep    10s
+
+Create HDB Module
+    [Arguments]    ${projectName}    ${ModuleName}    ${autobuild}="yes"
+    Selenium2Library.Open Context Menu    //span[contains(text(),"${projectName}")]
+    Selenium2Library.Click Element    //div[contains(text(),"New")]
+    Selenium2Library.Click Element    //div[contains(text(),"HDB Module")]
+    sleep    2s
+    Selenium2Library.Wait Until Element is visible    id=projectWizard--projectNameStep--nameField
+    Selenium2Library.Input Text    id=projectWizard--projectNameStep--nameField    ${ModuleName}
+    Selenium2Library.Click Element    //button[contains(text(),"Next")]
+    sleep    2s
+    Run Keyword If    ${autobuild} == "yes"    Selenium2Library.Click Element    //div/label[contains(text(),"Schema Name")]/ancestor::div/following-sibling::div[2]
+    Selenium2Library.Click Element    //button[contains(text(),"Next")]
+    sleep    2s
+    Selenium2Library.Click Element    //button[contains(text(),"Finish")]
+    Selenium2Library.Select Window    null
+    Selenium2Library.Wait Until Element Is Visible    //span[contains(text(),"${ModuleName}")]    timeout=60s
+    sleep    30s
+
+Delete Project
+    [Arguments]    ${projectName}
+
+Build module
+    [Arguments]    ${moduleName}
+    Selenium2Library.Click Element    //span[contains(text(),"${moduleName}")]
+    Selenium2Library.Click Element    //span[contains(text(),"Build")]/ancestor::li
+    Selenium2Library.Click Element    //li[@title="Build"]
+    sleep    60s
+
+Expand Node
+    [Arguments]    ${moduleName}
+    ${isAreaExpanded}=    Selenium2Library.Get Element Attribute    xpath=(//span[contains(text(),"${moduleName}")]/ancestor::li)@aria-expanded
+    Return from Keyword If    ${isAreaExpanded}=="true"
+    ${h}    ${w}    Get Element Size    //span[contains(text(),"${moduleName}")]/ancestor::li
+    ${h1}    ${w1}    Get Element Size    //span[contains(text(),"${moduleName}")]
+    ${pos}=    Evaluate    ((${h}-${h1})/2)+(${h1}/2)
+    Selenium2Library.Click Element At Coordinates    //span[contains(text(),"${moduleName}")]    -${pos}    0
+    sleep    2s
+    Selenium2Library.Capture Page Screenshot
+
+Create File
+    [Arguments]    ${nodeName}    ${fileName}    ${fileContent}=${None}
+    Selenium2Library.Open Context Menu    //span[contains(text(),"${nodeName}")]
+    Selenium2Library.Click Element    //div[contains(text(),"New")]
+    Selenium2Library.Click Element    //div[contains(text(),"File")]
+    Run keyword If    ${fileContent} == ${None}    Return from Keyword
+    Selenium2Library.Input Text    //textarea[@class="ace_text-input"]    ${fileContent}
+    Selenium2Library.Click ELement    //span[contains(text(),"Save")]/ancestor::button
+
+Create Folder
+    [Arguments]    ${nodeName}    ${folderName}
+    Selenium2Library.Open Context Menu    //span[contains(text(),"${nodeName}")]
+    Selenium2Library.Click Element    //div[contains(text(),"New")]
+    Selenium2Library.Click Element    //div[contains(text(),"Folder")]
+
+Import Project
+    [Arguments]    ${pathToProject}
+    Selenium2Library.Open Context Menu    //span[contains(text(),"Workspace")]
+    Selenium2Library.Click Element    //div[contains(text(),"Import")]
+    Selenium2Library.Click Element    //div[contains(text(),"From File System")]
+    Selenium2Library.Input Text    //div[@class="sapUiFupInputMask"]/input[1]    C:\\Users\\I333939\\Downloads\\Test_Java.zip
+    sleep    2s
+    Selenium2Library.Capture Page Screenshot
+    Selenium2Library.Click ELement    //button[contains(text(),"OK")]
+    sleep    60s

@@ -1,0 +1,26 @@
+*** Settings ***
+Resource          test_resource.txt
+Library           Collections
+
+*** Variables ***
+${username}       DDO_DLM_USER
+${password}       Welcome123
+${host}           http://ld4354-t01:8001
+${config_name}    check1
+
+*** Test Cases ***
+test1
+    [Timeout]
+    ${URL}    Catenate    SEPARATOR=    ${host}    /sap/hdm/ddo
+    login    ${URL}    ${username}    ${password}
+    Go_to_config
+    create new config    ${config_name}
+    sleep    10s
+    ${config_id}    get_config_id
+    select_the_config    ${config_id}
+    select_first_row_in_config
+    make_editable_config
+    select_first_row_in_config
+    Go_to_table_placement
+    select_first_row_in_config
+    Create_entry_in_table_placement

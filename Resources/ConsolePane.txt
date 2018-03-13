@@ -1,0 +1,28 @@
+*** Settings ***
+Resource          SeleniumLibraryAdapter.txt
+
+*** Keywords ***
+Check Message
+    [Arguments]    ${msg}
+    ${txt}=    Selenium2Library.Get Text    //div[@id="Console--console"]/div/div[last()]
+    Should Contain    ${txt}    ${msg}
+
+Get Console Messages
+    ${numOfMessages}    Selenium2Library.Get Matching Xpath Count     //div[@id="Console--console"]/div/div
+    ${i}    Set Variable    ${1}
+    ${msg}    Set Variable    ""
+    :FOR    ${j}    IN RANGE    ${numOfMessages}
+    \    ${path}    Catenate    SEPARATOR=    //div[@id="Console--console"]/div/div[    ${i}    ]
+    \    ${consoleMsg}    Selenium2Library.Get Text    ${path}
+    \    ${msg}    Catenate    SEPARATOR=\\n    ${msg}    ${consoleMsg}
+    \    ${i}    Evaluate    ${i}+1
+    Log    ${msg}
+
+Clear Console
+    Selenium2Library.CLick Element    //span[contains(text(),"View")]/ancestor::li
+    Selenium2Library.CLick Element    //div[contains(text(),"Clear Console")]/ancestor::li
+
+Open Console
+    ${class}=    Selenium2Library.Get ELement Attribute    xpath=(//button[@title="Console"])@class
+    ${status}    ${value}    Run Keyword And Ignore Error     Should Contain    ${class}    selected
+    Run Keyword If    "${status}" == "FAIL"    Selenium2Library.Click Element    //button[@title="Console"]

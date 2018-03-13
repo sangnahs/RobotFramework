@@ -1,0 +1,38 @@
+*** Settings ***
+Resource          SeleniumLibraryAdapter.txt
+Resource          CollectionAdapterResource.txt
+
+*** Keywords ***
+Open DatabaseExplorer
+    Selenium2Library.Click Element    //button[@title="Database Explorer"]
+    sleep    2s
+
+Add HDI Container
+    [Arguments]    ${containerName}
+    Selenium2Library.CLick Element    //button[@id="connectBtn"]
+    Selenium2Library.Wait Until Element Is Visible    //span[contains(text(),"Add Database")]
+    Selenium2Library.Click Element    //span[contains(text(),"Add Database")]
+    sleep    2s
+    Selenium2Library.Click Element    //label[contains(text(),"Name")]
+    ${h}    ${w}    Get Element Size    xpath=(//div[@class="sapUiTableVSb"])[1]
+    Comment    Selenium2Library.Drag And Drop By Offset    xpath=(//div[@class="sapUiTableVSb"])[1]    0    -9999
+    ${height}    Execute Javascript    var objDiv = document.evaluate(\"(//div[@class='sapUiTableVSb'])[1]\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;objDiv.scrollTop=200;return objDiv.scrollTop;
+    Comment    ${height}    Execute Javascript    var objDiv = document.evaluate(\"(//div[@class='sapUiTableVSb'])[1]/div\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;objDiv.scrollTop=100px;return objDiv.scrollTop;
+    Selenium2Library.CLick Element    //label[contains(text(),"${containerName}")]
+    Execute JavaScript    document.getElementById('AddDialog.ok').click();
+    sleep    5s
+    ${containerName}
+    ${containerName}
+
+Open HDI Container
+    [Arguments]    ${containerName}    ${entityName}
+    Selenium2Library.Click Element At Coordinates    //span[contains(text(),"${containerName}-hdi-container")]/ancestor::li    -150    0
+    sleep    5s
+    Execute JavaScript    var objDiv = document.evaluate(\"//div[@id='catalogBrowserTree-TreeCont']\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;objDiv.scrollTop = 100;
+    sleep    2s
+    Execute JavaScript    document.evaluate(\"//li[@title='Tables']\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()
+    Selenium2Library.Click Element    //span[contains(text(),"${containerName}")]/ancestor::li/following-sibling::ul/li[@title='Tables']
+    sleep    5s
+    Selenium2Library.Click Element    //label[contains(text(),"${entityName}")]
+    Comment    Selenium2Library.Wait Until Element Is Visible    //span[contains(text(),"${containerName}")]/ancestor::li/following-sibling/ul/li[@title="Tables"]    timeout=30s
+    Comment    Selenium2Library.CLick Element    //span[contains(text(),"${containerName}")]/ancestor::li/following-sibling/ul/li[@title="Tables"]

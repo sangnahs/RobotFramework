@@ -1,0 +1,13 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Collections
+
+*** Test Cases ***
+TestCase1
+    ${dc}    Evaluate    sys.modules['selenium.webdriver'].DesiredCapabilities.CHROME    sys, selenium.webdriver
+    Set To Dictionary    ${dc}    ignoreProtectedModeSettings    ${True}
+    Set To Dictionary    ${dc}    acceptSslCerts    ${True}
+    Log Dictionary    ${dc}
+    Selenium2Library.Open Browser    https://ld8499.wdf.sap.corp:31132/uaa-security/login    desired_capabilities=${dc}    browser=chrome
+    sleep    5s
+    Selenium2Library.Close All Browsers

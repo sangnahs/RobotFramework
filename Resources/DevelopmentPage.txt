@@ -1,0 +1,115 @@
+*** Settings ***
+Resource          SeleniumLibraryAdapter.txt
+Resource          CollectionAdapterResource.txt
+
+*** Variables ***
+${browserIndex}    ${None}
+
+*** Keywords ***
+Create MTA Project
+    [Arguments]    ${projectName}    ${space}
+    Selenium2Library.Open Context Menu    //span[contains(text(),"Workspace")]
+    Selenium2Library.Click Element    //div[contains(text(),"New")]
+    Selenium2Library.Click Element    //div[contains(text(),"Project from Template")]
+    sleep    5s
+    Selenium2Library.Click Element    //div/button[contains(text(),"Next")]
+    Selenium2Library.Input Text    id=projectWizard--projectNameStep--nameField    ${projectName}
+    Selenium2Library.Click Element    //button[contains(text(),"Next")]
+    sleep    5s
+    Selenium2Library.Input Text    //label[contains(text(),"Space*")]/ancestor::div/following-sibling::div//input    ${space}
+    Selenium2Library.Press Key    //label[contains(text(),"Space*")]/ancestor::div/following-sibling::div//input    \\13
+    Selenium2Library.Click Element    //button[contains(text(),"Finish")]
+    Select Window    null
+    Selenium2Library.Wait Until Element Is Visible    //span[contains(text(),"${projectName}")]    timeout=60s
+    sleep    10s
+
+Create HDB Module
+    [Arguments]    ${projectName}    ${ModuleName}    ${autobuild}="yes"
+    Selenium2Library.Open Context Menu    //span[contains(text(),"${projectName}")]
+    Selenium2Library.Click Element    //div[contains(text(),"New")]
+    Selenium2Library.Click Element    //div[contains(text(),"HDB Module")]
+    sleep    2s
+    Selenium2Library.Wait Until Element is visible    id=projectWizard--projectNameStep--nameField
+    Selenium2Library.Input Text    id=projectWizard--projectNameStep--nameField    ${ModuleName}
+    Selenium2Library.Click Element    //button[contains(text(),"Next")]
+    sleep    2s
+    Run Keyword If    ${autobuild} == "yes"    Selenium2Library.Click Element    //div/label[contains(text(),"Schema Name")]/ancestor::div/following-sibling::div[2]
+    Selenium2Library.Click Element    //button[contains(text(),"Next")]
+    sleep    2s
+    Selenium2Library.Click Element    //button[contains(text(),"Finish")]
+    Selenium2Library.Select Window    null
+    Selenium2Library.Wait Until Element Is Visible    //span[contains(text(),"${ModuleName}")]    timeout=60s
+    sleep    30s
+
+Delete Project
+    [Arguments]    ${projectName}
+
+Create CDS Artifact
+    [Arguments]    ${cdsName}    ${moduleName}    ${isGraphical}="yes"
+    Selenium2Library.Click Element At Coordinates    //span[contains(text(),"${moduleName}")]    -100    0
+    Selenium2Library.Open Context Menu    //span[contains(text(),"${moduleName}")]/ancestor::li/following-sibling::ul//span[contains(text(),"src")]
+    Selenium2Library.Click Element    //div[contains(text(),"New")]
+    Selenium2Library.Click Element    //div[contains(text(),"CDS Artifact")]
+    Selenium2Library.Input Text    //label[contains(text(),"Name")]/ancestor::td/following-sibling::td/input    ${cdsName}
+    Run Keyword If    ${isGraphical} != "yes"    Selenium2Library.Click Element    //label[contains(text(),"Text Editor")]
+    Selenium2Library.Click Element    //button[contains(text(),"Create")]
+    Selenium2Library.Wait Until Element Is Visible    //span[contains(text(),"${cdsName}")]    timeout=60s
+    sleep    10s
+
+Create Entity
+    [Arguments]    ${cdsName}    ${entityName}    ${attributes}={}
+    Selenium2Library.Open Context Menu    //span[contains(text(),"${cdsName}")]
+    Selenium2Library.Click Element    //div[contains(text(),"Open With")]
+    Selenium2Library.Click Element    //div[contains(text(),"Graphical Editor")]
+    Selenium2Library.Click Element    //a[contains(text(),"${cdsName}")]
+    Selenium2Library.Click ELement    //*[@id="svgPointerPanel"]
+    Selenium2Library.Click Element    //button[@title="Create Entity"]
+    Selenium2Library.MOuse Over    //*[@id="svgPointerPanel"]
+    Selenium2Library.Mouse Down    //*[@id="svgPointerPanel"]
+    Selenium2Library.Mouse Up    //*[@id="svgPointerPanel"]
+    Comment    Selenium2Library.Click Element    //rect[@class="task"]
+    Comment    Selenium2Library.CLick Element    //text[contains(text(),"Entity_1")]
+    Selenium2Library.Input Text    //input[@id="inPlaceEditControlInput"]    ${entityName}
+    Comment    Selenium2Library.Double CLick Element    //input[@id="inPlaceEditControlInput"]
+    Comment    Selenium2Library.CLick Element    //input[@id="inPlaceEditControlInput"]
+    Comment    sleep    60s
+    Selenium2Library.Click Element    //span[contains(text(),"${cdsName}")]
+    Comment    Selenium2Library.Click Element    //*[@id="svgPointerPanel"]
+    Comment    Selenium2Library.Double Click Element    //*[@id="svgMainShapeLayer"]
+    Execute Javascript    var target = document.evaluate(\"//*[@id='svgMainShapeLayer']//*[@class='task']\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;var dblClickEvent= document.createEvent('MouseEvents');dblClickEvent.initEvent ('dblclick', true, true);target.dispatchEvent (dblClickEvent);
+    sleep    5s
+    Add Attributes    ${attributes}
+    Selenium2Library.CLick Element    //span[contains(text(),"Save")]/ancestor::button
+
+Add Attributes
+    [Arguments]    ${attributes}
+    Selenium2Library.Wait Until Element Is Visible    //button[@title="Add"]
+    Selenium2Library.Click Element    //button[@title="Add"]
+    @{keys}=    Collections.Get Dictionary Keys    ${attributes}
+    ${var1}=    set variable    ${1}
+    Log    @{keys}
+    : FOR    ${key}    IN    @{keys}
+    \    ${elem_location}=    Catenate    SEPARATOR=_    elem    ${var1}
+    \    Selenium2Library.Input Text    //input[@title="elem_1"]    ${key}
+    \    ${value}=    Collections.Get From Dictionary    ${attributes}    ${key}
+    \    Selenium2Library.CLick Element    //input[@title="elem_1"]/ancestor::td/following-sibling::td[2]//div[@class="sapUiTfComboIcon"]
+    \    Selenium2Library.Click Element    //span[contains(text(),${value})]
+    \    ${var1}=    Evaluate    ${var1}+1
+
+Build module
+    [Arguments]    ${moduleName}
+    Selenium2Library.Click Element    //span[contains(text(),"${moduleName}")]
+    Selenium2Library.Click Element    //span[contains(text(),"Build")]/ancestor::li
+    Selenium2Library.Click Element    //li[@title="Build"]
+    sleep    60s
+
+Expand Node
+    [Arguments]    ${moduleName}
+    ${isAreaExpanded}=    Selenium2Library.Get Element Attribute    xpath=(//span[contains(text(),"${moduleName}")]/ancestor::li)@aria-expanded
+    Return from Keyword If    "${isAreaExpanded}"=="true"
+    ${h}    ${w}    Get Element Size    //span[contains(text(),"${moduleName}")]/ancestor::li
+    ${h1}    ${w1}    Get Element Size    //span[contains(text(),"${moduleName}")]
+    ${pos}=    Evaluate    ((${h}-${h1})/2)+(${h1}/2)
+    Selenium2Library.Click Element At Coordinates    //span[contains(text(),"${moduleName}")]    -${pos}    0
+    sleep    2s
+    Selenium2Library.Capture Page Screenshot

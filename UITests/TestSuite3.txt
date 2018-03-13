@@ -1,0 +1,8 @@
+*** Settings ***
+Library           Remote    http://localhost:8321
+
+*** Test Cases ***
+TestCase1
+    Open XSIDE    https://ld8499.wdf.sap.corp:53075
+    login XSIDE    test    Manager0
+    close XSIDE

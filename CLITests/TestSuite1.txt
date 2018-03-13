@@ -1,0 +1,8 @@
+*** Settings ***
+Resource          Resource1.txt
+
+*** Test Cases ***
+TestCase1
+    Login CLI    mo-95b0d3e43.mo.sap.corp     xs1adm    Manager0
+    Deploy App    /usr/sap/XS1/home/new_test_0.0.1.mtar
+    [Teardown]    Logout CLI

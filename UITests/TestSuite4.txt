@@ -1,0 +1,46 @@
+*** Settings ***
+Resource          ../Resources/DevelopmentPage.txt
+Resource          ../Resources/LoginPage.txt
+Resource          ../Resources/DatabaseExplorer.txt
+Resource          ../Resources/ConsolePane.txt
+Resource          ../Resources/Development/CommonProjectKeywords.txt
+
+*** Test Cases ***
+TestHDBModule
+    Login XSA    https://ld8499.wdf.sap.corp:53075/    TEST    Manager1
+    Create MTA Project    friday    TEST
+    Create HDB Module    friday    hdb2
+    Create CDS Artifact    data1    hdb2
+    &{attributes}=    Create DIctionary
+    Collections.Set to dictionary    ${attributes}    "sid"="String"
+    Create Entity    data1    person    ${attributes}
+    Build module    hdb2
+    Open DatabaseExplorer
+    Add HDI Container    friday
+    Open HDI Container    friday    person
+    Logout XSA
+    [Teardown]    Close All Browsers
+
+TestDatabaseExplorer
+    Login XSA    https://ld8499.wdf.sap.corp:53075/    TEST    Manager1
+    Comment    Login XSA    https://mo-95b0d3e43.mo.sap.corp:53075    XSA_ADMIN    Manager0
+    Open DatabaseExplorer
+    Add HDI Container    mta1
+    Comment    Open HDI Container    friday    person
+    Logout XSA
+    [Teardown]    Close All Browsers
+
+TestConsole
+    Login XSA    https://ld8499.wdf.sap.corp:53075/    TEST    Manager1
+    Build module    mta1
+    sleep    30s
+    Get Console Messages
+    [Teardown]    Close All Browsers
+
+test1
+    Login XSA    https://mo-95b0d3e43.mo.sap.corp:53075    XSA_ADMIN    Manager0
+    Comment    Login XSA    https://ld8499.wdf.sap.corp:53075/    TEST    Manager1
+    Comment    Expand Node    backend
+    Comment    Clear Console
+    Import Project    abc
+    [Teardown]    Close All Browsers

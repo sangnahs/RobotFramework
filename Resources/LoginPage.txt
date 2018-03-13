@@ -1,0 +1,24 @@
+*** Settings ***
+Resource          SeleniumLibraryAdapter.txt
+Resource          CollectionAdapterResource.txt
+
+*** Keywords ***
+Login XSA
+    [Arguments]    ${url}    ${user}    ${password}
+    ${dc}    Evaluate    sys.modules['selenium.webdriver'].DesiredCapabilities.CHROME    sys, selenium.webdriver
+    Set To Dictionary    ${dc}    ignoreProtectedModeSettings    ${True}
+    Set To Dictionary    ${dc}    acceptSslCerts    ${True}
+    Log Dictionary    ${dc}
+    Selenium2Library.Open Browser    ${url}    desired_capabilities=${dc}    browser=chrome
+    Selenium2Library.Set Selenium Implicit Wait    60s
+    Selenium2Library.Maximize Browser Window
+    Selenium2Library.Wait Until Page Contains Element    //input[@id="xs_username-inner"]
+    Selenium2Library.Input Text    //input[@id="xs_username-inner"]    ${user}
+    Selenium2Library.Input Text    //input[@id="xs_password-inner"]    ${password}
+    Selenium2Library.Click Element    //button[@id="logon_button"]
+    Sleep    60s
+    Selenium2Library.Wait Until Element Is Visible    //label[contains(text(),"${user}")]
+    Selenium2Library.Page Should Contain Element    //label[contains(text(),"${user}")]
+
+Logout XSA
+    Selenium2Library.Click Element    //li[@id="userInfoLogout"]

@@ -1,0 +1,751 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Collections
+
+*** Keywords ***
+login
+    [Arguments]    ${url}    ${user}    ${password}
+    ${dc}    Evaluate    sys.modules['selenium.webdriver'].DesiredCapabilities.CHROME    sys, selenium.webdriver
+    Set To Dictionary    ${dc}    ignoreProtectedModeSettings    ${True}
+    Set To Dictionary    ${dc}    acceptSslCerts    ${True}
+    Log Dictionary    ${dc}
+    Selenium2Library.Open Browser    ${url}    desired_capabilities=${dc}    browser=chrome
+    Selenium2Library.Set Selenium Implicit Wait    30s
+    Selenium2Library.Maximize Browser Window
+    Selenium2Library.Wait Until Page Contains Element    //input[@id="xs_username-inner"]
+    Selenium2Library.Input Text    //input[@id="xs_username-inner"]    ${user}
+    Selenium2Library.Input Text    //input[@id="xs_password-inner"]    ${password}
+    sleep    2s
+    Selenium2Library.Click Element    //span[contains(.,'Log On')]
+    Sleep    30s
+
+Go_to_manage_storage_destination
+    Selenium2Library.Click Element    //a[contains(text(),"Manage Storage Destinations")]
+    Sleep    2s
+
+Add_destination_storage
+    [Arguments]    ${profile_name_storage_destination}
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.manageStorageDestinations.addButton-inner
+    sleep    2s
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-NAME-inner    ${profile_name_storage_destination}
+    sleep    2s
+
+DT_storage_destination
+    sleep    2s
+    Selenium2Library.Click Element    id=dlm-manageStorageDestinations-staticForm-STORAGE_DESTINATION_TYPE-arrow
+    Sleep    2s
+    Selenium2Library.Click Element    //li[contains(text(),"HANA Dynamic Tiering Local")]
+
+Save_profile
+    Sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Save")]
+    Sleep    2s
+
+Activate_profile
+    Sleep    2s
+    Wait Until Element Is Visible    //span[contains(.,'Activate')]
+    Sleep    2s
+    Selenium2Library.Click Element    //span[contains(.,'Activate')]
+    Sleep    2s
+
+Test_connection_storage_destination
+    Sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Test Connection")]
+
+Delete_storage_destination_profile
+    [Arguments]    ${storage_profile_name}
+    sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Delete")]
+    sleep    2s
+    Selenium2Library.Click Element    id=CA_VIEW_CONFIRM--BTN_CONFIRM-inner
+    Sleep    2s
+    Selenium2Library.Input Text    id=dlm.manageStorageDestinations.searchField-I    ${storage_profile_name}
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.manageStorageDestinations.searchField-search
+    Sleep    2s
+    ${Completiont}    Selenium2Library.Get Text    id=dlm.manageStorageDestinations.masterList-nodata-text
+    Log    ${Completiont}
+    Should Be True    "${Completiont}"=="No data"
+
+hadoop_storage_destination
+    sleep    2s
+    Selenium2Library.Click Element    id=dlm-manageStorageDestinations-staticForm-STORAGE_DESTINATION_TYPE-arrow
+    Sleep    2s
+    Selenium2Library.Click Element    //li[contains(text(),"Spark SQL (DESTINATION)")]
+
+extended_node_storage_destination
+    sleep    2s
+    Selenium2Library.Click Element    id=dlm-manageStorageDestinations-staticForm-STORAGE_DESTINATION_TYPE-arrow
+    Sleep    2s
+    Selenium2Library.Click Element    //li[contains(text(),"SAP HANA Extension Node")]
+
+IQ_storage_destination
+    [Arguments]    ${remote_source_name}    ${db_name}    ${schema_name}
+    sleep    2s
+    Selenium2Library.Click Element    id=dlm-manageStorageDestinations-staticForm-STORAGE_DESTINATION_TYPE-arrow
+    Sleep    2s
+    Selenium2Library.Click Element    //li[contains(text(),"SAP IQ over SDA")]
+    sleep    1s
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-dynamicForm-DETAILS-SYBASEIQ_DESTINATION_MODEL-DETAILS-REMOTESOURCE-inner    ${remote_source_name}
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-dynamicForm-DETAILS-SYBASEIQ_DESTINATION_MODEL-DETAILS-DBNAME-inner    ${db_name}
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-dynamicForm-DETAILS-SYBASEIQ_DESTINATION_MODEL-DETAILS-OWNER-inner    ${schema_name}
+
+Deletion _Bin_storage_Destination
+    sleep    2s
+    Selenium2Library.Click Element    id=dlm-manageStorageDestinations-staticForm-STORAGE_DESTINATION_TYPE-arrow
+    Sleep    2s
+    Selenium2Library.Click Element    //li[contains(text(),"Deletion Bin Destination")]
+
+Edit_DT_storage_destination_profile
+    [Arguments]    ${schema_name}
+    Sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Edit")]
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-dynamicForm-DETAILS-HANADTLOCAL_DESTINATION_MODEL-DETAILS-SCHEMA-inner    ${schema_name}
+    Selenium2Library.Click Element    //label[contains(@class,'sapMDLILabel')]
+
+cancel_discard_changes_profile
+    Sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Cancel")]
+    Sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Discard")]
+
+select_storage_destination_profile
+    [Arguments]    ${storage_profile_name}
+    Selenium2Library.Input Text    id=dlm.manageStorageDestinations.searchField-I    ${storage_profile_name}
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.manageStorageDestinations.searchField-search
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.manageStorageDestinations.masterList-listUl
+
+Edit_IQ_storage_destination_profile
+    sleep    1s
+    Selenium2Library.Click Element    //span[contains(text(),"Edit")]
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-dynamicForm-DETAILS-SYBASEIQ_DESTINATION_MODEL-DETAILS-REMOTESOURCE-inner    remote source name
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-dynamicForm-DETAILS-SYBASEIQ_DESTINATION_MODEL-DETAILS-DBNAME-inner    db name
+    Selenium2Library.Input Text    id=dlm-manageStorageDestinations-dynamicForm-DETAILS-SYBASEIQ_DESTINATION_MODEL-DETAILS-OWNER-inner    schema name
+
+Go_to Home
+    Selenium2Library.Click Element    //a[contains(text(),"Home")]
+    Sleep    1s
+
+Click_explore_tile_Home
+    Sleep    5s
+    Wait Until Element is visible    //div[@id="dlm.home.exploreTile"]
+    Selenium2Library.Click Element    //div[@id="dlm.home.exploreTile"]
+
+Click_on_Manage_storage_destination_tile
+    Sleep    5s
+    Wait Until Element is visible    //div[@id="dlm.home.storageDestinationTile"]
+    Selenium2Library.Click Element    //div[@id="dlm.home.storageDestinationTile"]
+
+Click_on_Manage_Modelled_Persistence_object_tile
+    Sleep    5s
+    Wait Until Element Is Visible    //div[@id="dlm.home.managePersistenceObjectTile"]
+    Selenium2Library.Click Element    //div[@id="dlm.home.managePersistenceObjectTile"]
+
+Click_on_Manage_Lifecycle_profile_tile
+    Sleep    5s
+    Wait Until Element Is Visible    //div[@id="dlm.home.manageDLMProfileTile"]
+    Selenium2Library.Click Element    //div[@id="dlm.home.manageDLMProfileTile"]
+
+click_on_Logs_tile
+    Sleep    5s
+    Wait Until Element Is Visible    //div[@id="dlm.home.logsTile"]
+    Selenium2Library.Click Element    //div[@id="dlm.home.logsTile"]
+
+Click_on_logKPI_tile
+    Sleep    5s
+    Wait Until Element Is Visible    //div[@id="dlm.home.logKPITile"]
+    Selenium2Library.Click Element    //div[@id="dlm.home.logKPITile"]
+
+Click_on_node_utilization_forecast_tile
+    Sleep    5s
+    Selenium2Library.Click Element    //div[@id="dlm.home.memoryKPITile"]
+    sleep    6s
+    Selenium2Library.Click Element    //button[contains(@class,"sapMBarChild sapMBtn sapMBtnBase")]
+
+Go_to_Manage_Modelled_persistence_object
+    sleep    2s
+    Selenium2Library.Click Element    //a[contains(text(),"Manage Modeled Persistence Objects")]
+    [Teardown]
+
+Add_persitance_object_profile_table_group_type
+    [Arguments]    ${persistance_object_name}
+    Sleep    2s
+    Selenium2Library.Click Element    //div[@id="dlm.persistenceObject.addButton-inner"]
+    Sleep    1s
+    Selenium2Library.Input Text    //input[@id="dlm-persistenceObject-NAME-inner"]    ${persistance_object_name}
+    Sleep    1s
+    Selenium2Library.Click Element    //span[@id="dlm-persistenceObject-staticForm-UDPO_TYPE-arrow"]
+    sleep    1s
+    Selenium2Library.Click Element    //li[contains(text(),"SAP HANA Table Group")]
+
+Add_tables_to_persistance_object_type
+    [Arguments]    ${tablename1}
+    Sleep    3s
+    Selenium2Library.Input Text    //input[@id="dlm-persistenceObject-dynamicForm-Core-Udpo-Dlm-TableGroup-Basic-ParameterModel-Core-FULLY_QUALIFIED_TABLE_NAME-inner"]    ${tablename1}
+    Wait Until Element Is Visible    //label[contains(@class,'sapMDLILabel')]
+    Sleep    3s
+    Selenium2Library.Click Element    //label[contains(@class,'sapMDLILabel')]
+
+Add_common_key_persistence_object
+    [Arguments]    ${common_key}
+    sleep    1s
+    Selenium2Library.Input Text    //input[@id="dlm-persistenceObject-dynamicForm-Core-Udpo-Dlm-TableGroup-Basic-ParameterModel-Core-COMMON_COLUMN_NAME-inner"]    ${common_key}
+    Sleep    2s
+    Wait Until Element Is Visible    //label[contains(@class,'sapMDLILabel')]
+    Selenium2Library.Click Element    //label[contains(@class,'sapMDLILabel')]
+
+Add_nominal_key_persistence_object
+    [Arguments]    ${nominal_key}
+    Sleep    1s
+    Selenium2Library.Input Text    //input[@id="dlm-persistenceObject-dynamicForm-Core-Udpo-Dlm-TableGroup-Basic-ParameterModel-Core-NOMINAL_KEY_NAME-inner"]    ${nominal_key}
+    Wait Until Element Is Visible    //label[contains(@class,'sapMDLILabel')]
+    Selenium2Library.Click Element    //label[contains(@class,'sapMDLILabel')]
+
+select_persistence_object_profile
+    [Arguments]    ${persistence_object_profile_name}
+    Selenium2Library.Input Text    id=dlm.persistenceObject.searchField-I    ${persistence_object_profile_name}
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.persistenceObject.searchField-search
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.persistenceObject.masterList
+
+Delete_persistence_object_profile
+    [Arguments]    ${profile_name}
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(text(),"Delete")]
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(text(),"Delete")]
+    Sleep    1s
+    Selenium2Library.Click Element    id=dlm.persistenceObject.searchField-search
+    Sleep    2s
+    ${Completiont}    Selenium2Library.Get Text    id=dlm.persistenceObject.masterList-nodata-text
+    Log    ${Completiont}
+    Should Be True    "${Completiont}"=="No data"
+
+Add_table_hierarchy_persistence_object
+    [Arguments]    ${persistence_object_name}
+    Sleep    2s
+    Selenium2Library.Click Element    //div[@id="dlm.persistenceObject.addButton-inner"]
+    Sleep    1s
+    Selenium2Library.Input Text    //input[@id="dlm-persistenceObject-NAME-inner"]    ${persistence_object_name}
+    Sleep    1s
+    Selenium2Library.Click Element    //span[@id="dlm-persistenceObject-staticForm-UDPO_TYPE-arrow"]
+    sleep    1s
+    Selenium2Library.Click Element    //li[contains(text(),"SAP HANA Table Hierarchy")]
+
+Add_calculation_view_persistence_object
+    [Arguments]    ${cal_view_name}
+    Sleep    1s
+    Selenium2Library.Input Text    //input[@id="dlm-persistenceObject-dynamicForm-DETAILS-Udpo-Dlm-HanaTableHierarchy-Basic-ParameterModel-DETAILS-CALCVIEW_NAME-inner"]    ${cal_view_name}
+    Selenium2Library.Click Element    //label[contains(@class,'sapMDLILabel')]
+
+select_manage_life_cycle_profile
+    [Arguments]    ${dlm_profile_name}
+    Selenium2Library.Input Text    id=dlm.manageLifecycleProfile.searchField-I    ${dlm_profile_name}
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.manageLifecycleProfile.searchField-search
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.manageLifecycleProfile.masterList
+
+Go_to_Explore
+    Selenium2Library.Click Element    //a[contains(text(),"Explore")]
+    Sleep    1s
+
+go to Manage Lifecycle Profile
+    Comment    Selenium2Library.Click Element    //a[contains(.,'Manage Lifecycle Profiles')]
+    Execute Javascript    var objDiv = document.evaluate(\"//a[contains(.,'Manage Lifecycle Profiles')] \", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;objDiv.click();
+    Sleep    2s
+
+Click on Add Profile
+    [Arguments]    ${Profile_name}
+    Sleep    2s
+    Wait Until Element is visible    //button[@id='dlm.manageLifecycleProfile.addButton']
+    Sleep    2s
+    Selenium2Library.Click Element    //button[@id='dlm.manageLifecycleProfile.addButton']
+    Sleep    3s
+    Wait Until Element is visible    //input[contains(@id,'dlm-lifecycleProfile-ProfileDetails-NAME-inner')]
+    Sleep    2s
+    Selenium2Library.Input Text    //input[contains(@id,'dlm-lifecycleProfile-ProfileDetails-NAME-inner')]    ${Profile_name}
+    Sleep    2s
+
+Select source Persistence type as hana table
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(@id,'dlm-manageLifecycleProfile-staticForm-SOURCE_PERSISTENCE_TYPE-arrow')]
+    Wait Until Element is visible    //li[contains(.,'SAP HANA Table')]
+    Selenium2Library.Click Element    //li[text()="SAP HANA Table"]
+    Sleep    5s
+
+Select source Persistence type as table group
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(@id,'dlm-manageLifecycleProfile-staticForm-SOURCE_PERSISTENCE_TYPE-arrow')]
+    Wait Until Element is visible    //li[contains(.,'SAP HANA Table Group')]
+    Selenium2Library.Click Element    //li[contains(.,'SAP HANA Table Group')]
+    Sleep    5s
+
+Select source Persistence type as table hierarchy
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(@id,'dlm-manageLifecycleProfile-staticForm-SOURCE_PERSISTENCE_TYPE-arrow')]
+    Wait Until Element is visible    //li[contains(.,'HANA Table Hierarchy')]
+    Selenium2Library.Click Element    //li[contains(.,'HANA Table Hierarchy')]
+    Sleep    5s
+
+Select source Persistence type as table partition
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(@id,'dlm-manageLifecycleProfile-staticForm-SOURCE_PERSISTENCE_TYPE-arrow')]
+    Wait Until Element is visible    //li[contains(.,'SAP HANA Partitioned Table')]
+    Selenium2Library.Click Element    //li[contains(.,'SAP HANA Partitioned Table')]
+    Sleep    5s
+
+Schema Name
+    [Arguments]    ${schema_name}
+    Sleep    2s
+    Wait Until Element is visible    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLE_OBJECT_MODEL-DETAILS-SCHEMA-inner']
+    Sleep    2s
+    Selenium2Library.Input Text    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLE_OBJECT_MODEL-DETAILS-SCHEMA-inner']    ${schema_name}
+    Selenium2Library.Press Key    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLE_OBJECT_MODEL-DETAILS-SCHEMA-inner']    \\13
+
+Table name
+    [Arguments]    ${table_name}
+    Sleep    4s
+    Wait Until Element is visible    //input[contains(@id,'MODEL-DETAILS-TABLE-inner')]
+    Sleep    2s
+    Selenium2Library.Input Text    //input[contains(@id,'MODEL-DETAILS-TABLE-inner')]    ${table_name}
+    Sleep    4s
+    Selenium2Library.Press Key    //input[contains(@id,'MODEL-DETAILS-TABLE-inner')]    \\13
+
+Nominal Key
+    [Arguments]    ${Nominal_Key}
+    Sleep    2s
+    Wait Until Element is visible    //input[contains(@id,'KEY')]
+    Sleep    2s
+    Selenium2Library.Input Text    //input[contains(@id,'KEY')]    ${Nominal_Key}
+    Sleep    5s
+    Selenium2Library.Click Element    //label[contains(@class,'sapMDLILabel')]
+    Comment    Selenium2Library.Press Key    //input[contains(@id,'KEY')]    \\13
+    Sleep    3s
+
+schedule trigger type
+    Sleep    1s
+    Selenium2Library.Click Element    //span[@id='dlm-manageLifecycleProfile-TRIGGER_FORM-TRIGGER_TYPE-arrow']
+    Wait Until Element is visible    //li[contains(.,'Scheduled')]
+    Selenium2Library.Click Element    //li[contains(.,'Scheduled')]
+    Sleep    5s
+
+Group Name
+    [Arguments]    ${Group_name}
+    Sleep    2s
+    Wait Until Element is visible    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLEGROUP_OBJECT_MODEL-DETAILS-TABLE_GROUP_NAME-inner']
+    Sleep    2s
+    Selenium2Library.Input Text    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLEGROUP_OBJECT_MODEL-DETAILS-TABLE_GROUP_NAME-inner']    ${Group_name}
+    Sleep    3s
+    Selenium2Library.Press Key    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLEGROUP_OBJECT_MODEL-DETAILS-TABLE_GROUP_NAME-inner']    \\13
+    Sleep    2s
+
+Table hierarchy
+    [Arguments]    ${Hierarchy_name}
+    Sleep    2s
+    Wait Until Element is visible    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLEHIERARCHY_OBJECT_MODEL-DETAILS-TABLE_HIERARCHY_NAME-inner']
+    Sleep    2s
+    Selenium2Library.Input Text    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLEHIERARCHY_OBJECT_MODEL-DETAILS-TABLE_HIERARCHY_NAME-inner']    ${Hierarchy_name}
+    Sleep    3s
+    Selenium2Library.Press Key    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANATABLEHIERARCHY_OBJECT_MODEL-DETAILS-TABLE_HIERARCHY_NAME-inner']    \\13
+    Sleep    2s
+
+schema_name for partition table
+    [Arguments]    ${schema_name}
+    Sleep    2s
+    Wait Until Element is visible    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANAPARTITIONEDTABLE_OBJECT_MODEL-DETAILS-SCHEMA-inner']
+    Sleep    2s
+    Selenium2Library.Input Text    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANAPARTITIONEDTABLE_OBJECT_MODEL-DETAILS-SCHEMA-inner']    ${schema_name}
+    Selenium2Library.Press Key    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANAPARTITIONEDTABLE_OBJECT_MODEL-DETAILS-SCHEMA-inner']    \\13
+
+table_name for partition table
+    [Arguments]    ${table_name}
+    Sleep    4s
+    Wait Until Element is visible    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANAPARTITIONEDTABLE_OBJECT_MODEL-DETAILS-TABLE-inner']
+    Sleep    2s
+    Selenium2Library.Input Text    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANAPARTITIONEDTABLE_OBJECT_MODEL-DETAILS-TABLE-inner']    ${table_name}
+    Sleep    4s
+    Selenium2Library.Press Key    //input[@id='dlm-manageLifecycleProfile-dynamicForm-DETAILS-HANAPARTITIONEDTABLE_OBJECT_MODEL-DETAILS-TABLE-inner']    \\13
+
+Select storage destination
+    [Arguments]    ${storage_dest}
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(@id,'DESTINATION-arrow')]
+    Wait Until Element is visible    //li[contains(.,'${storage_dest}')]
+    Selenium2Library.Click Element    //li[contains(.,'${storage_dest}')]
+    Sleep    5s
+
+click on destination Attribute
+    Selenium2Library.Click Element    //div[@id='dlm.manageLifecycleProfile.IconTabBar.DestinationAttributes.IconTabFilter-tab']
+    Sleep    2s
+
+Relocation direction-hot to cold
+    Sleep    1s
+    Selenium2Library.Click Element    //span[@id='dlm-manageLifecycleProfile-IconTabBar-DestinationAttributes-destinationAttributesForm-RELOCATION_DIRECTION-arrow']
+    Wait Until Element is visible    //li[contains(.,'Hot To Cold')]
+    Selenium2Library.Click Element    //li[contains(.,'Hot To Cold')]
+    Sleep    5s
+
+Relocation direction-cold to hot
+    Sleep    1s
+    Selenium2Library.Click Element    //span[@id='dlm-manageLifecycleProfile-IconTabBar-DestinationAttributes-destinationAttributesForm-RELOCATION_DIRECTION-arrow']
+    Wait Until Element is visible    //li[contains(.,'Cold To Hotter')]
+    Selenium2Library.Click Element    //li[contains(.,'Cold To Hotter')]
+    Sleep    5s
+
+Relocation direction-bidirectional
+    Sleep    1s
+    Selenium2Library.Click Element    //span[@id='dlm-manageLifecycleProfile-IconTabBar-DestinationAttributes-destinationAttributesForm-RELOCATION_DIRECTION-arrow']
+    Wait Until Element is visible    //li[contains(.,'Bidirectional')]
+    Selenium2Library.Click Element    //li[contains(.,'Bidirectional')]
+    Sleep    5s
+
+Clash-strategy HTC Overwrite
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(@id,'COLD-arrow')]
+    Wait Until Element is visible    //li[contains(.,'Overwrite')]
+    Selenium2Library.Click Element    //li[contains(.,'Overwrite')]
+    Sleep    5s
+
+Clash-strategy CTH Skip
+    Sleep    1s
+    Selenium2Library.Click Element    //span[contains(@id,'HOT-arrow')]
+    Wait Until Element is visible    //li[contains(.,'Skip')]
+    Selenium2Library.Click Element    //li[contains(.,'Skip')]
+    Sleep    5s
+
+Click on rule editor
+    Selenium2Library.Click Element    //div[@id='dlm.manageLifecycleProfile.IconTabBar.RuleEditor.IconTabFilter-text']
+    Sleep    2s
+
+enter the rule
+    [Arguments]    ${rule}
+    Sleep    3s
+    Comment    Selenium2Library.Click Element    //div[@class='ace_editor ace-sap-cumulus']
+    Selenium2Library.Input Text    //div[@class="ace_gutter"]/preceding-sibling::textarea[@class="ace_text-input"] \    ${rule}
+    Sleep    2s
+
+Click on validate syntax
+    Sleep    2s
+    Selenium2Library.Click Element    //button[contains(.,'Validate Syntax')]
+    Sleep    2s
+
+Click on save button
+    Sleep    3s
+    Wait Until Element is visible    //button[contains(.,'Save')]
+    Sleep    2s
+    Selenium2Library.Click Element    //button[contains(.,'Save')]
+    Sleep    5s
+
+Click on Active button
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Activate')]
+    Sleep    2s
+    Selenium2Library.Click Element    //button[contains(.,'Activate')]
+    Sleep    5s
+
+Click on edit button
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Edit')]
+    Sleep    2S
+    Selenium2Library.Click Element    //button[contains(.,'Edit')]
+    Sleep    5s
+
+click on delete button
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Delete')]
+    Selenium2Library.Click Element    //button[contains(.,'Delete')]
+    Sleep    5s
+    Wait Until Element is visible    //button[contains(@id,'CA_VIEW_CONFIRM--BTN_CONFIRM')]
+    Selenium2Library.Click Element    //button[contains(@id,'CA_VIEW_CONFIRM--BTN_CONFIRM')]
+    Sleep    5s
+
+Click on cancel button
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Cancel')]
+    Selenium2Library.Click Element    //button[contains(.,'Cancel')]
+    Sleep    5s
+    Wait Until Element is visible    //button[contains(.,'Discard')]
+    Selenium2Library.Click Element    //button[contains(.,'Discard')]
+
+Click on simulate button
+    Sleep    5s
+    Wait Until Element is visible    //button[contains(.,'Simulate')]
+    Sleep    5s
+    Selenium2Library.Click Element    //button[contains(.,'Simulate')]
+    Sleep    5s
+
+Click on Data Relocation Review
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Data Relocation Preview')]
+    Sleep    2s
+    Selenium2Library.Click Element    //button[contains(.,'Data Relocation Preview')]
+    Sleep    5s
+
+Comparing the first 2 column value from hot to cold
+    [Arguments]    ${H_value_1}    ${H_value_2}
+    Sleep    5s
+    Wait Until Element is visible    //span[contains(.,'Hot to Cold')]
+    Sleep    3s
+    ${col1}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col0-row0')])@value
+    Log    ${col1}
+    Should Be Equal    "${col1}"    "${H_value_1}"
+    Sleep    4s
+    ${col2}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col1-row0')])@value
+    Log    ${col2}
+    Should Be Equal    "${col2}"    "${H_value_2}"
+    Sleep    4s
+
+Comparing the first 2 column value from cold to hot
+    [Arguments]    ${C_value_1}    ${C_value_2}
+    Sleep    5s
+    Wait Until Element is visible    //span[contains(.,'Cold to Hot')]
+    Sleep    3s
+    ${col1}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col0-row0')])@value
+    Log    ${col1}
+    Should Be Equal    "${col1}"    "${C_value_1}"
+    Sleep    4s
+    ${col2}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col1-row0')])@value
+    Log    ${col2}
+    Should Be Equal    "${col2}"    "${C_value_2}"
+    Sleep    4s
+
+Comparing the first 2 column value from bidirectional
+    [Arguments]    ${C_value_1}    ${C_value_2}    ${H_value_1}    ${H_value_2}
+    Sleep    5s
+    Wait Until Element is visible    //span[contains(.,'Cold to Hot')]
+    Sleep    3s
+    ${col1}    Selenium2Library.Get Element Attribute    xpath=(//li[@title="Cold to Hot"]//input[contains(@data-sap-ui,'col0-row0')])@value
+    Log    ${col1}
+    Should Be Equal    "${col1}"    "${C_value_1}"
+    Sleep    4s
+    ${col2}    Selenium2Library.Get Element Attribute    xpath=(//li[@title="Cold to Hot"]//input[contains(@data-sap-ui,'col1-row0')])@value
+    Log    ${col2}
+    Should Be Equal    "${col2}"    "${C_value_2}"
+    Sleep    4s
+    Wait Until Element is visible    //span[contains(.,'Hot to Cold')]
+    Sleep    3s
+    ${col3}    Selenium2Library.Get Element Attribute    xpath=(//li[@title="Hot to Cold"]//input[contains(@data-sap-ui,'col0-row0')])@value
+    Log    ${col3}
+    Should Be Equal    "${col3}"    "${H_value_1}"
+    Sleep    4s
+    ${col4}    Selenium2Library.Get Element Attribute    xpath=(//li[@title="Hot to Cold"]//input[contains(@data-sap-ui,'col1-row0')])@value
+    Log    ${col4}
+    Should Be Equal    "${col4}"    "${H_value_2}"
+    Sleep    4s
+
+Click on Close button
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Close')]
+    Selenium2Library.Click Element    //button[contains(.,'Close')]
+    Sleep    5s
+
+Click on Relocation Count
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Data Relocation Count')]
+    Sleep    2s
+    Selenium2Library.Click Element    //button[contains(.,'Data Relocation Count')]
+    Sleep    5s
+
+Comparing thr record count in hot and cold table
+    [Arguments]    ${count1}    ${count2}
+    Sleep    5s
+    Wait Until Element is visible    //span[contains(.,'Simulated Results')]
+    Sleep    3s
+    ${col1}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@data-sap-ui,'col1-row0')])@value
+    Log    ${col1}
+    Should Be Equal    "${col1}"    "${count1}"
+    Sleep    4s
+    ${col2}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@data-sap-ui,'col2-row0')])@value
+    Log    ${col2}
+    Should Be Equal    "${col2}"    "${count2}"
+    Sleep    4s
+    Wait Until Element is visible    //button[contains(.,'Close')]
+    Selenium2Library.Click Element    //button[contains(.,'Close')]
+    Sleep    5s
+
+Click on Run button
+    Sleep    3s
+    Wait Until Element is visible    //button[contains(.,'Run')]
+    Sleep    2s
+    Selenium2Library.Click Element    //button[contains(.,'Run')]
+    Sleep    5s
+
+Click on trigger manually
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Trigger Manually')]
+    Sleep    1s
+    Selenium2Library.Click Element    //button[contains(.,'Trigger Manually')]
+    Sleep    5s
+
+Enter the password and Click on Confirm
+    [Arguments]    ${password}
+    Sleep    1s
+    Wait Until Element is visible    //input[@type='password']
+    Selenium2Library.Input Text    //input[@type='password']    ${password}
+    Sleep    5s
+    Sleep    1s
+    Wait Until Element is visible    //button[contains(.,'Confirm')]
+    Selenium2Library.Click Element    //button[contains(.,'Confirm')]
+    Sleep    1s
+
+Click on Logs
+    Sleep    4s
+    Wait Until Element is visible    //button[contains(.,'Logs')]
+    Sleep    3s
+    Selenium2Library.Click Element    //button[contains(.,'Logs')]
+
+Check for Complete
+    ${i}    Set Variable    ${1}
+    : FOR    ${i}    IN RANGE    20
+    \    Sleep    4s
+    \    Selenium2Library.Click Element    //button[@title='Refresh Table']
+    \    Sleep    3s
+    \    Wait Until Element Is Visible    //div[@id='ddo.planMaintenance.headerTable-rowsel0']
+    \    Sleep    3s
+    \    Selenium2Library.Click Element    //div[@id='ddo.planMaintenance.headerTable-rowsel0']
+    \    Sleep    3s
+    \    ${Completiont}    Selenium2Library.Get Text    xpath=(//table[contains(@id,"planMaintenance")]//span[contains(@id,"col9-row0")])
+    \    Log    ${Completiont}
+    \    Exit For Loop If    "${Completiont}"=="100%"
+    Should Be True    ${i} < 20
+
+check for complete1
+    [Arguments]    ${USER}
+    sleep    2s
+    ${status}    ${value}    Run keyword ANd Ignore Error    Wait Until Element Is Visible    //span[contains(text(),"No data")]    timeout=10s
+    ${count}    Run Keyword IF    "${status}" == "PASS"    set variable    ${0}
+    ...    ELSE    Get Matching Xpath Count    //input[contains(@value,"${USER}")]
+    Wait Until Keyword Succeeds    10x    5s    Refresh And Check    ${count}    ${USER}
+
+Refresh And Check
+    [Arguments]    ${count}    ${USER}
+    CLick ELement    //button[@title='Refresh Table']
+    ${currentCount}    Get Matching Xpath Count    //input[contains(@value,"${USER}")]
+    Should Be True    ${currentCount} > ${count}
+    ${Completiont}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@data-sap-ui,'col3-row0')])@value
+    Log    ${Completiont}
+    Should Be True    "${Completiont}"=="Completed [1]"
+
+click on destination Persistence
+    Sleep    2s
+    Selenium2Library.Click Element    //div[@id='dlm.manageLifecycleProfile.IconTabBar.DestinationPersistences.IconTabFilter-text']
+    Sleep    2s
+
+get Cold table name
+    [Arguments]    ${table_name}
+    ${C_NAME}    Get Element ATtribute    xpath=(//label[@title="Table"]/ancestor::td/following-sibling::td//input[contains(@value,"${table_name}")])@value
+    Return From Keyword    ${C_NAME}
+
+get Pruning Node
+    [Arguments]    ${table_name}
+    ${P_NAME}    Get Element ATtribute    xpath=(//label[@title="Pruning Node View"]/ancestor::td/following-sibling::td//input[contains(@value,"${table_name}")])@value
+    Return From Keyword    ${P_NAME}
+
+get union Node
+    [Arguments]    ${table_name}
+    ${U_NAME}    Get Element ATtribute    xpath=(//label[@title="Union View"]/ancestor::td/following-sibling::td//input[contains(@value,"${table_name}")])@value
+    Return From Keyword    ${U_NAME}
+
+get DT not supported length error
+    sleep    2s
+    Selenium2Library.Click Element    //div[@id="sap.hdm.core.messageNotificationBar-ArrowUp"]
+    Sleep    2s
+    ${Completiont}    Selenium2Library.Get Text    //div[contains(@class,'sapUiNotifierMessageText')]/ancestor::div[@tabindex=0]
+    Log    ${Completiont}
+    Should Be True    "${Completiont}"=="Dynamic Tiering does not support source tables having keys of type VARCHAR/CHAR/VARBINARY/BINARY with length > 255, or keys of type NVARCHAR/NCHAR with length > 85 currently"
+    SLEEP    2S
+    Selenium2Library.Click Element    //div[@id="sap.hdm.core.messageNotificationBar-ArrowDown"]
+
+Feature not supported error
+    Sleep    2s
+    Selenium2Library.Click Element    //td[contains(@id,"dlm.log.HeaderTable-rows-row0-col0")]/div[contains(@class,'sapUiTableCell')]/a
+    Sleep    2s
+    Selenium2Library.Double Click Element    xpath=(//td[contains(@id,'dlm.log.ItemTable-rows-row5-col3')]/div/label[contains(@class,'sapMLabel sapMLabelMaxWidth sapUiSelectable')])
+    ${Completiont}    Selenium2Library.Get Text    xpath=(//div[contains(@class,'sapMInputBase sapMInputBaseDisabled sapMInputBaseWidthPadding sapMTextArea')]/textarea)
+    Log    ${Completiont}
+    Should Be True    "${Completiont}" == "Unexpected error occured during run: InternalError: dberror(CallableStatement.execute): 7 - feature not supported: "SAP_HDM_DLM_GNR"."DLM_GPROC_7670B659082B32C9E10000000A6032F6": line 39 col 6 (at pos 2396): [7] (range 3): feature not supported: expressed condition can not be fully delegated to the remote source [executeProcedure@/sap/hana/xs/libs/dbutils/procedures.xsjslib:838 XSProcedures/Procedure/this.execute@/sap/hana/xs/libs/dbutils/procedures.xsjslib:855 XSProcedures/defineProcedure/<@/sap/hana/xs/libs/dbutils/procedures.xsjslib:1134 callRelocationProcedure@/sap/hdm/dlm/utils/DLMUtils.xsjslib:107 HANADTRelocationAgent.prototype.relocateInSingleTransactionReverse@/sap/hdm/dlm/relocationagent/module/hanadt/HANADTRelocationAgent.xsjslib:342 DLMEngine.prototype._processRelocationToDestination@/sap/hdm/dlm/core/service/engine.xsjslib:330 DLMEngine.prototype.triggerRelocation@/sap/hdm/dlm/core/service/engine.xsjslib:229 triggerRelocationRun@/sap/hdm/dlm/core/schedule/triggerRelocationRun.xsjslib:14 triggerRelocationRun@/sap/hdm/dlm/core/schedule/triggerRelocationRun.xsjs:8 ]"
+    [Teardown]
+
+check for error2
+    [Arguments]    ${USER}
+    sleep    2s
+    ${status}    ${value}    Run keyword ANd Ignore Error    Wait Until Element Is Visible    //span[contains(text(),"No data")]    timeout=10s
+    ${count}    Run Keyword IF    "${status}" == "PASS"    set variable    ${0}
+    ...    ELSE    Get Matching Xpath Count    //input[contains(@value,"${USER}")]
+    Wait Until Keyword Succeeds    10x    5s    Refresh and check error2    ${count}    ${USER}
+    [Teardown]
+
+Refresh and check error2
+    [Arguments]    ${count}    ${USER}
+    CLick ELement    //button[@title='Refresh Table']
+    ${currentCount}    Get Matching Xpath Count    //input[contains(@value,"${USER}")]
+    Should Be True    ${currentCount} >= ${count}
+    ${Completiont}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@data-sap-ui,'col3-row0')])@value
+    Log    ${Completiont}
+    Should Be True    "${Completiont}"=="Error [2]"
+
+get cold table name for IQ group
+    [Arguments]    ${table_name}
+    ${C_NAME}    Get Element ATtribute    xpath=(//label[@title="Virtual Table"]/ancestor::td/following-sibling::td//input[contains(@value,"${table_name}")])@value
+    Return From Keyword    ${C_NAME}
+
+Delete Manage Lifecycle profile
+    [Arguments]    ${profile_name}
+    sleep    2s
+    Selenium2Library.Click Element    //span[contains(text(),"Delete")]
+    sleep    2s
+    Selenium2Library.Click Element    id=CA_VIEW_CONFIRM--BTN_CONFIRM-inner
+    Sleep    2s
+    Selenium2Library.Input Text    id=dlm.manageLifecycleProfile.searchField-I    ${profile_name}
+    Sleep    2s
+    Selenium2Library.Click Element    id=dlm.manageLifecycleProfile.searchField-search
+    Sleep    2s
+    ${Completiont}    Selenium2Library.Get Text    id=dlm.manageLifecycleProfile.masterList-nodata
+    Log    ${Completiont}
+    Should Be True    "${Completiont}"=="No data"
+
+comparing relocation count value
+    [Arguments]    ${H_Value}    ${C_value}    ${H1_Value}    ${C1_Value}
+    Sleep    5s
+    Wait Until Element is visible    //input[contains(@title,"Hot to Cold ")]
+    Wait Until Element is visible    //input[contains(@title,"Cold to Hot ")]
+    Sleep    3s
+    ${H1}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col1-row0')])@value
+    Log    ${H1}
+    Should Be Equal    "${H1}"    "${H_Value}"
+    Sleep    4s
+    ${C1}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col2-row0')])@value
+    Log    ${C1}
+    Should Be Equal    "${C1}"    "${C_Value}"
+    Sleep    4s
+    ${H2}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col1-row1')])@value
+    Log    ${H2}
+    Should Be Equal    "${H2}"    "${H1_Value}"
+    Sleep    4s
+    ${C2}    Selenium2Library.Get Element Attribute    xpath=(//input[contains(@id,'col2-row1')])@value
+    Log    ${C2}
+    Should Be Equal    "${C2}"    "${C1_Value}"
+    Sleep    4s
+
+login1
+    [Arguments]    ${url}    ${user}    ${password}
+    ${dc}    Evaluate    sys.modules['selenium.webdriver'].DesiredCapabilities.CHROME    sys, selenium.webdriver
+    Set To Dictionary    ${dc}    ignoreProtectedModeSettings    ${True}
+    Set To Dictionary    ${dc}    ignoreZoomSetting    ${True}
+    Set To Dictionary    ${dc}    acceptSslCerts    ${True}
+    Log Dictionary    ${dc}
+    Selenium2Library.Open Browser    ${url}    desired_capabilities=${dc}    browser=chrome
+    Selenium2Library.Set Selenium Implicit Wait    30s
+    Selenium2Library.Maximize Browser Window
+    Selenium2Library.Wait Until Page Contains Element    //input[@id="xs_username-inner"]
+    Selenium2Library.Input Text    //input[@id="xs_username-inner"]    ${user}
+    Selenium2Library.Input Text    //input[@id="xs_password-inner"]    ${password}
+    Selenium2Library.Click Element    //span[@id="logon_button-content"]
+    Sleep    30s
+    Comment    Execute javascript    document.body.style.zoom="80%"
+    sleep    2s
